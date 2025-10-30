@@ -1,162 +1,159 @@
-# Deployment Guide - Vercel
+# 🚀 Production Deployment Guide
 
-## Prerequisites
+## Best Practice: Split Deployment
 
-1. **Vercel Account**: Sign up at https://vercel.com
-2. **GitHub Repository**: Code must be on GitHub (already done ✅)
-3. **Environment Variables**: Prepare all your API keys and secrets
+- **Frontend** → **Vercel** (Free, Fast CDN, Perfect for React)
+- **Backend** → **Render** (Free tier, Perfect for Node.js + MongoDB)
 
-## Steps to Deploy
+This is the **industry-standard approach** for MERN stack apps.
 
-### 1. Install Vercel CLI (Optional)
+---
+
+## 📦 Part 1: Deploy Backend to Render
+
+### Step 1: Create Render Account
+1. Go to https://render.com
+2. Sign up with your GitHub account
+
+### Step 2: Create New Web Service
+1. Click **"New +"** → **"Web Service"**
+2. Connect your GitHub repository: `coderheist/AI-CodeSense`
+3. Configure:
+   - **Name**: `ai-codesense-backend`
+   - **Root Directory**: `server`
+   - **Environment**: `Node`
+   - **Region**: Choose closest to you
+   - **Branch**: `main`
+   - **Build Command**: `npm install`
+   - **Start Command**: `npm start`
+   - **Instance Type**: `Free`
+
+### Step 3: Add Environment Variables
+
+Click **"Advanced"** → **"Add Environment Variable"**:
 
 ```bash
-npm install -g vercel
-```
-
-### 2. Deploy via Vercel Dashboard (Recommended)
-
-1. Go to https://vercel.com/dashboard
-2. Click **"Add New Project"**
-3. Import your GitHub repository: `coderheist/AI-CodeSense`
-4. Vercel will auto-detect the configuration from `vercel.json`
-5. Configure **Environment Variables** (see below)
-6. Click **"Deploy"**
-
-### 3. Configure Environment Variables
-
-In Vercel Dashboard → Project → Settings → Environment Variables, add:
-
-#### Backend Variables
-```
-MONGODB_URI=your_mongodb_atlas_connection_string
-GEMINI_API_KEY=your_gemini_api_key
-GITHUB_TOKEN=your_github_personal_access_token
-FIREBASE_SERVICE_ACCOUNT={"type":"service_account","project_id":"..."}
 NODE_ENV=production
+PORT=10000
+MONGODB_URI=<your_mongodb_uri>
+GEMINI_API_KEY=<your_gemini_key>
+GITHUB_TOKEN=<your_github_token>
+FIREBASE_PROJECT_ID=<your_firebase_project_id>
+FIREBASE_PRIVATE_KEY=<your_firebase_private_key>
+FIREBASE_CLIENT_EMAIL=<your_firebase_email>
+CLIENT_URL=https://your-frontend-url.vercel.app
 ```
 
-#### Frontend Variables
-```
-VITE_API_URL=https://your-project.vercel.app
-VITE_FIREBASE_API_KEY=your_firebase_api_key
-VITE_FIREBASE_AUTH_DOMAIN=your-project.firebaseapp.com
-VITE_FIREBASE_PROJECT_ID=your_project_id
-VITE_FIREBASE_STORAGE_BUCKET=your_project.appspot.com
-VITE_FIREBASE_MESSAGING_SENDER_ID=your_sender_id
-VITE_FIREBASE_APP_ID=your_app_id
-```
+### Step 4: Deploy
+1. Click **"Create Web Service"**
+2. Wait 5-10 minutes for deployment
+3. Your backend will be live at: `https://ai-codesense-backend.onrender.com`
 
-### 4. MongoDB Atlas Setup
+**Important:** Copy this URL - you'll need it for frontend!
 
-Since Vercel is serverless, you **must** use MongoDB Atlas (cloud):
+---
 
-1. Go to https://www.mongodb.com/cloud/atlas
-2. Create a free cluster
-3. Get your connection string
-4. Whitelist Vercel's IP (or use 0.0.0.0/0 for all IPs)
-5. Add connection string to `MONGODB_URI` environment variable
+## 🎨 Part 2: Deploy Frontend to Vercel
 
-### 5. Update Firebase Service Account
+### Step 1: Deploy to Vercel
 
-For Vercel, you need to stringify your Firebase service account JSON:
+**Via Vercel Dashboard:**
+1. Go to https://vercel.com/new
+2. Import repository: `coderheist/AI-CodeSense`
+3. Configure:
+   - **Framework Preset**: Vite
+   - **Root Directory**: `client`
+   - **Build Command**: `npm run build`
+   - **Output Directory**: `dist`
+
+### Step 2: Add Environment Variables
+
+In Vercel, add these environment variables:
 
 ```bash
-# Copy the entire JSON content from your firebase service account file
-# Then paste it as a single-line string in FIREBASE_SERVICE_ACCOUNT
+VITE_FIREBASE_API_KEY=<your_firebase_api_key>
+VITE_FIREBASE_AUTH_DOMAIN=<your_project>.firebaseapp.com
+VITE_FIREBASE_PROJECT_ID=<your_project_id>
+VITE_FIREBASE_STORAGE_BUCKET=<your_bucket>
+VITE_FIREBASE_MESSAGING_SENDER_ID=<your_sender_id>
+VITE_FIREBASE_APP_ID=<your_app_id>
+VITE_API_URL=https://ai-codesense-backend.onrender.com/api
 ```
 
-Or update `server/src/config/firebaseAdmin.js` to use individual environment variables.
+### Step 3: Deploy
+1. Click **"Deploy"**
+2. Your app will be live at: `https://ai-codesense-xyz.vercel.app`
 
-### 6. Redeploy
+---
 
-After setting environment variables:
-- Vercel will automatically redeploy
-- Or manually trigger: **Deployments → Latest → Redeploy**
+## 🔄 Part 3: Connect Frontend & Backend
 
-## Verify Deployment
+### Update Backend CORS
 
-1. Check **Frontend**: https://your-project.vercel.app
-2. Check **API**: https://your-project.vercel.app/api/health
-3. Should return: `{"status":"OK","message":"AI CodeSense API is running"}`
+1. Go to Render Dashboard → Your Backend Service
+2. Update environment variable:
+   ```
+   CLIENT_URL=https://ai-codesense-xyz.vercel.app
+   ```
+3. Render will auto-redeploy
 
-## Important Notes
+### Update Firebase OAuth
 
-⚠️ **Serverless Limitations**:
-- Each API call has a 10-second timeout on free tier
-- Cold starts may add latency
-- No persistent WebSocket connections
+1. Go to Firebase Console
+2. **Authentication** → **Settings** → **Authorized domains**
+3. Add: `ai-codesense-xyz.vercel.app`
+4. Update OAuth providers (GitHub, LinkedIn) redirect URIs
 
-⚠️ **CORS Configuration**:
-- Update `CLIENT_URL` in backend to your Vercel domain
-- Or use wildcard (not recommended for production)
+---
 
-⚠️ **MongoDB Connection**:
-- Use connection pooling
-- Keep connections minimal
-- Close connections properly
+## ✅ Verification Checklist
 
-## Alternative: Deploy via CLI
+- [ ] Backend Health: `https://ai-codesense-backend.onrender.com/api/health`
+- [ ] Frontend loads correctly
+- [ ] Login with Google/GitHub/LinkedIn works
+- [ ] Code Review feature works
+- [ ] Test Generation works
+- [ ] Repo Analyzer works
+- [ ] AI Chat works
+
+---
+
+## 💰 Costs: **100% FREE**
+
+- ✅ Render Free Tier: 750 hours/month
+- ✅ Vercel Free Tier: Unlimited bandwidth
+- ✅ MongoDB Atlas Free: 512MB storage
+
+---
+
+## 🎯 Auto-Deploy Setup
+
+Both Render and Vercel auto-deploy when you push to `main` branch!
 
 ```bash
-# Login to Vercel
-vercel login
-
-# Deploy
-vercel --prod
-
-# Set environment variables
-vercel env add MONGODB_URI
-vercel env add GEMINI_API_KEY
-# ... add all other variables
-
-# Redeploy
-vercel --prod
+git add .
+git commit -m "Update feature"
+git push
+# Both frontend and backend auto-deploy! 🚀
 ```
 
-## Troubleshooting
+---
 
-### Build Fails
-- Check build logs in Vercel dashboard
-- Ensure all dependencies are in `package.json`
-- Verify Node.js version compatibility
+## 🐛 Troubleshooting
 
-### API Returns 500
-- Check Function Logs in Vercel dashboard
-- Verify environment variables are set
-- Check MongoDB Atlas whitelist
+**Backend Issues:**
+- Check Render logs in dashboard
+- Whitelist `0.0.0.0/0` in MongoDB Atlas
+- First request after sleep takes 30-60s (cold start)
 
-### CORS Errors
-- Update `CLIENT_URL` in backend `.env`
-- Ensure it matches your Vercel domain
+**Frontend Issues:**
+- Check Vercel deployment logs
+- Verify `VITE_API_URL` is correct
+- Clear Vercel cache: `vercel --force`
 
-### Cold Starts
-- Upgrade to Vercel Pro for better performance
-- Or consider splitting: Frontend on Vercel, Backend on Render/Railway
+**CORS Errors:**
+- Ensure `CLIENT_URL` matches frontend URL in Render
 
-## Post-Deployment
+---
 
-1. **Update Firebase OAuth**:
-   - Add Vercel domain to authorized domains in Firebase Console
-   - Update redirect URIs for GitHub/LinkedIn OAuth
-
-2. **Test All Features**:
-   - Code Review
-   - Test Generation
-   - Repository Analyzer
-   - AI Chat
-   - Master Prompt Generation
-
-3. **Monitor**:
-   - Check Vercel Analytics
-   - Monitor MongoDB Atlas usage
-   - Watch Gemini API quotas
-
-## Support
-
-If deployment fails, check:
-- Vercel Function Logs
-- Browser Console
-- Network Tab (DevTools)
-
-Good luck! 🚀
+**Ready to deploy! 🎉**
