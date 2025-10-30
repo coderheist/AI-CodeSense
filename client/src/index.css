@@ -1,0 +1,113 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-gray-950 text-gray-200 antialiased;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  }
+  
+  code, pre {
+    font-family: 'JetBrains Mono', 'Fira Code', 'Consolas', monospace;
+  }
+  
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Inter', sans-serif;
+    font-weight: 600;
+    letter-spacing: -0.025em;
+  }
+}
+
+@layer components {
+  .btn-primary {
+    @apply px-6 py-3 bg-primary text-gray-950 font-semibold rounded-lg hover:bg-primary/90 transition-all duration-200 shadow-lg shadow-primary/20;
+    font-family: 'Inter', sans-serif;
+  }
+  
+  .btn-secondary {
+    @apply px-6 py-3 bg-gray-800 text-gray-200 font-semibold rounded-lg hover:bg-gray-700 transition-all duration-200;
+    font-family: 'Inter', sans-serif;
+  }
+  
+  .card {
+    @apply bg-gray-900 rounded-xl border border-gray-800 p-6 shadow-xl;
+  }
+  
+  .input-field {
+    @apply w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-gray-200 focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all;
+    font-family: 'Inter', sans-serif;
+  }
+  
+  /* Professional AI Review Styling */
+  .ai-review-content {
+    @apply leading-relaxed;
+    font-family: 'Inter', sans-serif;
+    font-size: 0.95rem;
+    line-height: 1.7;
+  }
+  
+  .ai-review-content h1 {
+    @apply text-2xl font-bold text-primary mb-4 mt-6;
+  }
+  
+  .ai-review-content h2 {
+    @apply text-xl font-semibold text-gray-100 mb-3 mt-5 border-b border-gray-700 pb-2;
+  }
+  
+  .ai-review-content h3 {
+    @apply text-lg font-semibold text-gray-200 mb-2 mt-4;
+  }
+  
+  .ai-review-content p {
+    @apply mb-3 text-gray-300;
+  }
+  
+  .ai-review-content ul, .ai-review-content ol {
+    @apply mb-4 ml-6 space-y-2;
+  }
+  
+  .ai-review-content li {
+    @apply text-gray-300;
+  }
+  
+  .ai-review-content code {
+    @apply bg-gray-800 text-primary px-2 py-1 rounded text-sm;
+    font-family: 'JetBrains Mono', monospace;
+  }
+  
+  .ai-review-content pre {
+    @apply bg-gray-800 p-4 rounded-lg overflow-x-auto mb-4 border border-gray-700;
+  }
+  
+  .ai-review-content pre code {
+    @apply bg-transparent p-0 text-sm;
+    font-family: 'JetBrains Mono', monospace;
+  }
+  
+  .ai-review-content strong {
+    @apply text-gray-100 font-semibold;
+  }
+  
+  .ai-review-content blockquote {
+    @apply border-l-4 border-primary pl-4 italic text-gray-400 my-4;
+  }
+}
+
+/* Scrollbar styles */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  @apply bg-gray-900;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-gray-700 rounded-full;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  @apply bg-gray-600;
+}
