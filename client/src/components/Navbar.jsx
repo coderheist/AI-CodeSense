@@ -24,7 +24,7 @@ const Navbar = () => {
   const handleLogout = async () => {
     try {
       await logout();
-      navigate('/'); // Redirect to landing page after logout
+      navigate('/about'); // Redirect to About page after logout
     } catch (error) {
       console.error('Logout error:', error);
     }

@@ -15,7 +15,7 @@ const Profile = () => {
   const handleLogout = async () => {
     try {
       await logout();
-      navigate('/');
+      navigate('/about');
     } catch (error) {
       console.error('Logout error:', error);
     }
