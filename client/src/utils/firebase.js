@@ -10,6 +10,20 @@ const firebaseConfig = {
   appId: import.meta.env.VITE_FIREBASE_APP_ID,
 };
 
+// Validate Firebase configuration
+const missingVars = [];
+if (!firebaseConfig.apiKey) missingVars.push('VITE_FIREBASE_API_KEY');
+if (!firebaseConfig.authDomain) missingVars.push('VITE_FIREBASE_AUTH_DOMAIN');
+if (!firebaseConfig.projectId) missingVars.push('VITE_FIREBASE_PROJECT_ID');
+if (!firebaseConfig.storageBucket) missingVars.push('VITE_FIREBASE_STORAGE_BUCKET');
+if (!firebaseConfig.messagingSenderId) missingVars.push('VITE_FIREBASE_MESSAGING_SENDER_ID');
+if (!firebaseConfig.appId) missingVars.push('VITE_FIREBASE_APP_ID');
+
+if (missingVars.length > 0) {
+  console.error('Missing Firebase environment variables:', missingVars);
+  console.error('Please set these variables in your Vercel project settings.');
+}
+
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 
