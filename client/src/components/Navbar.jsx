@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Code2, Menu, X } from 'lucide-react';
 import { useState } from 'react';
@@ -7,6 +7,7 @@ import { useAuth } from '../context/AuthContext';
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const { user, logout } = useAuth();
+  const navigate = useNavigate();
 
   const navLinks = user
     ? [
@@ -19,6 +20,15 @@ const Navbar = () => {
     : [
         { name: 'About', path: '/about' },
       ];
+
+  const handleLogout = async () => {
+    try {
+      await logout();
+      navigate('/'); // Redirect to landing page after logout
+    } catch (error) {
+      console.error('Logout error:', error);
+    }
+  };
 
   return (
     <nav className="bg-gray-900/95 backdrop-blur-sm border-b border-gray-800 sticky top-0 z-50">
@@ -61,7 +71,7 @@ const Navbar = () => {
                     </div>
                   )}
                 </Link>
-                <button onClick={logout} className="btn-secondary text-sm">
+                <button onClick={handleLogout} className="btn-secondary text-sm">
                   Logout
                 </button>
               </div>
@@ -101,7 +111,7 @@ const Navbar = () => {
             {user ? (
               <button
                 onClick={() => {
-                  logout();
+                  handleLogout();
                   setIsOpen(false);
                 }}
                 className="w-full text-left px-4 py-2 rounded-lg hover:bg-gray-800 transition-colors"
