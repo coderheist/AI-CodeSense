@@ -8,6 +8,9 @@ if (API_URL && !API_URL.includes('/api')) {
   API_URL = `${API_URL}/api`;
 }
 
+// Log the final API URL for debugging
+console.log('🔗 API URL configured:', API_URL);
+
 const api = axios.create({
   baseURL: API_URL,
   headers: {

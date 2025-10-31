@@ -10,6 +10,7 @@ let API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 if (API_URL && !API_URL.includes('/api')) {
   API_URL = `${API_URL}/api`;
 }
+console.log('🔗 RepoAnalyzer API URL:', API_URL);
 
 // File type icon mapping
 const getFileIcon = (filename) => {
