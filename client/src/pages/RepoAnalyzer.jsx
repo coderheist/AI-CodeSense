@@ -5,7 +5,11 @@ import MarkdownRenderer from '../components/MarkdownRenderer';
 import LoadingSpinner from '../components/LoadingSpinner';
 import axios from 'axios';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+// Ensure API_URL always ends with /api
+let API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+if (API_URL && !API_URL.includes('/api')) {
+  API_URL = `${API_URL}/api`;
+}
 
 // File type icon mapping
 const getFileIcon = (filename) => {
