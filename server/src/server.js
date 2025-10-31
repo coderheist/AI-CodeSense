@@ -16,12 +16,26 @@ connectDB();
 
 // Middleware
 app.use(cors({
-  origin: [
-    'http://localhost:5173',
-    'https://codesense-cc690.web.app',
-    'https://codesense-cc690.firebaseapp.com',
-    process.env.CLIENT_URL
-  ].filter(Boolean),
+  origin: function (origin, callback) {
+    // Allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) return callback(null, true);
+    
+    const allowedOrigins = [
+      'http://localhost:5173',
+      'http://localhost:5000',
+      'https://codesense-cc690.web.app',
+      'https://codesense-cc690.firebaseapp.com',
+      'https://ai-code-sense.vercel.app',
+      process.env.CLIENT_URL
+    ].filter(Boolean);
+    
+    // Allow all Vercel preview URLs
+    if (origin.includes('vercel.app') || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
   credentials: true
 }));
 app.use(express.json({ limit: '10mb' }));
