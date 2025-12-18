@@ -1,6 +1,8 @@
 import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
+import helmet from 'helmet';
+import compression from 'compression';
 import connectDB from './config/db.js';
 import aiRoutes from './routes/aiRoutes.js';
 import userRoutes from './routes/userRoutes.js';
@@ -13,6 +15,18 @@ const PORT = process.env.PORT || 5000;
 
 // Connect to MongoDB
 connectDB();
+
+// Security Middleware
+app.use(helmet({
+  contentSecurityPolicy: false,
+  crossOriginEmbedderPolicy: false,
+}));
+app.use(compression());
+
+// Trust proxy for production (behind reverse proxy)
+if (process.env.NODE_ENV === 'production') {
+  app.set('trust proxy', 1);
+}
 
 // Middleware
 app.use(cors({
@@ -54,10 +68,19 @@ app.get('/api/health', (req, res) => {
 // Error handling middleware
 app.use((err, req, res, next) => {
   console.error(err.stack);
-  res.status(500).json({ 
-    error: 'Something went wrong!', 
-    message: err.message 
+  
+  // Don't leak error details in production
+  const isDevelopment = process.env.NODE_ENV !== 'production';
+  
+  res.status(err.status || 500).json({ 
+    error: isDevelopment ? err.message : 'Something went wrong!',
+    ...(isDevelopment && { stack: err.stack })
   });
+});
+
+// 404 handler
+app.use((req, res) => {
+  res.status(404).json({ error: 'Route not found' });
 });
 
 // Start server

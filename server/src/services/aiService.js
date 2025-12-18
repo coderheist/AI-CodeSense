@@ -18,11 +18,31 @@ if (!apiKey || apiKey === 'your_gemini_api_key_here') {
 
 const genAI = new GoogleGenerativeAI(apiKey || 'dummy-key');
 
+// Helper function to retry API calls with exponential backoff
+const retryWithBackoff = async (fn, maxRetries = 3, initialDelay = 1000) => {
+  for (let i = 0; i < maxRetries; i++) {
+    try {
+      return await fn();
+    } catch (error) {
+      const isLastRetry = i === maxRetries - 1;
+      const isOverloaded = error.status === 503 || error.message?.includes('overloaded');
+      
+      if (isOverloaded && !isLastRetry) {
+        const delay = initialDelay * Math.pow(2, i);
+        console.log(`⚠️  Model overloaded, retrying in ${delay}ms... (attempt ${i + 1}/${maxRetries})`);
+        await new Promise(resolve => setTimeout(resolve, delay));
+        continue;
+      }
+      throw error;
+    }
+  }
+};
+
 // Code Review Service
 export const getCodeReview = async (code, language) => {
   try {
     console.log(`📝 Starting code review for ${language}...`);
-    const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' });
+    const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
 
     const prompt = `You are a professional senior software engineer and code reviewer.
 
@@ -92,9 +112,11 @@ Remember to:
 - Use clear, professional language
 - Focus on the most impactful changes first`;
 
-    const result = await model.generateContent(prompt);
-    const response = await result.response;
-    const text = response.text();
+    const text = await retryWithBackoff(async () => {
+      const result = await model.generateContent(prompt);
+      const response = await result.response;
+      return response.text();
+    });
     
     console.log('✅ Code review generated successfully');
     return text;
@@ -103,7 +125,7 @@ Remember to:
     if (error.status === 400) {
       throw new Error('Invalid API key. Please check your GEMINI_API_KEY in .env file');
     } else if (error.status === 404) {
-      throw new Error('Model not found. Using gemini-2.0-flash model');
+      throw new Error('Model not found. Please check if gemini-pro model is available');
     } else if (error.status === 429) {
       throw new Error('API rate limit exceeded. Please try again later');
     }
@@ -115,7 +137,7 @@ Remember to:
 export const generateTestCases = async (code, language) => {
   try {
     console.log(`🧪 Starting test generation for ${language}...`);
-    const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' });
+    const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
 
     const testFramework = getTestFramework(language);
     
@@ -213,7 +235,7 @@ Generate complete, runnable tests with proper setup, teardown, and meaningful as
 export const summarizeCode = async (code, language) => {
   try {
     console.log(`📝 Starting code summary for ${language}...`);
-    const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' });
+    const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
 
     const prompt = `You are a senior software architect. Provide a clear, professional summary of this ${language} code.
 
@@ -293,7 +315,7 @@ Keep the summary professional, accurate, and developer-friendly.`;
 export const chatAboutCode = async (code, language, question, chatHistory = []) => {
   try {
     console.log(`💬 Starting AI chat for ${language}...`);
-    const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' });
+    const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
 
     const contextPrompt = chatHistory.length > 0 
       ? `Previous conversation:\n${chatHistory.map(msg => `${msg.role}: ${msg.content}`).join('\n')}\n\n`
@@ -348,7 +370,7 @@ const getTestFramework = (language) => {
 export const analyzeCodeMetrics = async (code, language) => {
   try {
     console.log(`📊 Analyzing code metrics for ${language}...`);
-    const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' });
+    const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
 
     const linesOfCode = code.split('\n').filter(line => line.trim().length > 0).length;
 
@@ -406,7 +428,7 @@ IMPORTANT:
 export const analyzeRepository = async (repoData) => {
   try {
     console.log(`📚 Analyzing repository: ${repoData.metadata.name}...`);
-    const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' });
+    const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
 
     const { metadata, fileStructure, sampleFiles } = repoData;
 
@@ -507,9 +529,11 @@ FORMAT YOUR RESPONSE AS FOLLOWS:
 
 Keep the documentation professional, accurate, and developer-friendly. Focus on insights that help developers understand and work with this codebase.`;
 
-    const result = await model.generateContent(prompt);
-    const response = await result.response;
-    const text = response.text();
+    const text = await retryWithBackoff(async () => {
+      const result = await model.generateContent(prompt);
+      const response = await result.response;
+      return response.text();
+    });
     
     console.log('✅ Repository analysis completed');
     return text;
@@ -523,7 +547,7 @@ Keep the documentation professional, accurate, and developer-friendly. Focus on 
 export const explainRepoCode = async (filePath, code, language, repoContext) => {
   try {
     console.log(`🔍 Explaining code from: ${filePath}...`);
-    const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' });
+    const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
 
     const prompt = `You are an expert code educator. Explain this code file from a GitHub repository in a clear, educational manner.
 
@@ -608,7 +632,7 @@ Make the explanation educational and easy to understand, especially for develope
 export const generateMasterPrompt = async (repoData) => {
   try {
     console.log(`🎯 Generating master prompt for: ${repoData.metadata.name}...`);
-    const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' });
+    const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
 
     const { metadata, fileStructure, sampleFiles } = repoData;
 
