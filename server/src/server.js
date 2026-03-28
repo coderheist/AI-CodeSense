@@ -33,6 +33,11 @@ const isAllowedOrigin = (origin) => {
   if (!origin) return true;
   if (allowedOrigins.includes(origin)) return true;
 
+  // Accept local development origins on any port.
+  if (/^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/i.test(origin)) {
+    return true;
+  }
+
   // Allow Vercel preview domains by default to avoid CORS failures in Preview deployments.
   if (allowGenericVercelPreview && /^https:\/\/[a-z0-9-]+\.vercel\.app$/i.test(origin)) {
     return true;

@@ -1,15 +1,35 @@
 import axios from 'axios';
 
-// Ensure API_URL always ends with /api
-const defaultApiBase = import.meta.env.PROD
+const normalizeApiBaseUrl = (rawUrl) => {
+  const trimmed = rawUrl?.trim();
+
+  if (!trimmed) {
+    return null;
+  }
+
+  const url = new URL(trimmed);
+  const path = url.pathname.replace(/\/+$/, '');
+
+  if (!path || path === '/') {
+    url.pathname = '/api';
+  } else if (!path.endsWith('/api')) {
+    url.pathname = `${path}/api`;
+  } else {
+    url.pathname = path;
+  }
+
+  return url.toString().replace(/\/$/, '');
+};
+
+const fallbackApiBase = import.meta.env.PROD
   ? 'https://ai-codesense-32rf.onrender.com/api'
   : 'http://localhost:5000/api';
 
-let API_URL = import.meta.env.VITE_API_URL || defaultApiBase;
+const envApiBase = normalizeApiBaseUrl(import.meta.env.VITE_API_URL);
+const API_URL = envApiBase || fallbackApiBase;
 
-// If production URL doesn't include /api, add it
-if (API_URL && !API_URL.includes('/api')) {
-  API_URL = `${API_URL}/api`;
+if (!envApiBase) {
+  console.warn('⚠️ VITE_API_URL is missing or invalid, using fallback API URL:', API_URL);
 }
 
 // Log the final API URL for debugging
@@ -17,6 +37,7 @@ console.log('🔗 API URL configured:', API_URL);
 
 const api = axios.create({
   baseURL: API_URL,
+  timeout: 30000,
   headers: {
     'Content-Type': 'application/json',
   },
