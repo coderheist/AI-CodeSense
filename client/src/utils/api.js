@@ -1,7 +1,11 @@
 import axios from 'axios';
 
 // Ensure API_URL always ends with /api
-let API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+const defaultApiBase = import.meta.env.PROD
+  ? 'https://ai-codesense-32rf.onrender.com/api'
+  : 'http://localhost:5000/api';
+
+let API_URL = import.meta.env.VITE_API_URL || defaultApiBase;
 
 // If production URL doesn't include /api, add it
 if (API_URL && !API_URL.includes('/api')) {

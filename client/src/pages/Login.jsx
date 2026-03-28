@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
-import { Mail, Lock, Github, Linkedin } from 'lucide-react';
+import { Mail, Lock } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
 const Login = () => {
@@ -11,7 +11,7 @@ const Login = () => {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   
-  const { loginWithGoogle, loginWithGithub, loginWithLinkedIn, loginWithEmail, signupWithEmail } = useAuth();
+  const { loginWithGoogle, loginWithEmail, signupWithEmail } = useAuth();
   const navigate = useNavigate();
 
   const handleGoogleLogin = async () => {
@@ -19,32 +19,6 @@ const Login = () => {
       setLoading(true);
       setError('');
       await loginWithGoogle();
-      navigate('/home');
-    } catch (err) {
-      setError(err.message);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleGithubLogin = async () => {
-    try {
-      setLoading(true);
-      setError('');
-      await loginWithGithub();
-      navigate('/home');
-    } catch (err) {
-      setError(err.message);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleLinkedInLogin = async () => {
-    try {
-      setLoading(true);
-      setError('');
-      await loginWithLinkedIn();
       navigate('/home');
     } catch (err) {
       setError(err.message);
@@ -110,26 +84,6 @@ const Login = () => {
                 className="w-5 h-5"
               />
               <span>Continue with Google</span>
-            </button>
-
-            {/* GitHub Login */}
-            <button
-              onClick={handleGithubLogin}
-              disabled={loading}
-              className="w-full flex items-center justify-center space-x-2 bg-gray-800 text-white font-semibold py-3 rounded-lg hover:bg-gray-700 transition-all disabled:opacity-50 border border-gray-700"
-            >
-              <Github className="w-5 h-5" />
-              <span>Continue with GitHub</span>
-            </button>
-
-            {/* LinkedIn Login */}
-            <button
-              onClick={handleLinkedInLogin}
-              disabled={loading}
-              className="w-full flex items-center justify-center space-x-2 bg-[#0077B5] text-white font-semibold py-3 rounded-lg hover:bg-[#006399] transition-all disabled:opacity-50"
-            >
-              <Linkedin className="w-5 h-5" />
-              <span>Continue with LinkedIn</span>
             </button>
           </div>
 

@@ -2,8 +2,6 @@ import { createContext, useContext, useState, useEffect } from 'react';
 import {
   signInWithPopup,
   GoogleAuthProvider,
-  GithubAuthProvider,
-  OAuthProvider,
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
   signOut,
@@ -85,31 +83,6 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  const loginWithGithub = async () => {
-    const provider = new GithubAuthProvider();
-    try {
-      const result = await signInWithPopup(auth, provider);
-      return result.user;
-    } catch (error) {
-      console.error('GitHub login error:', error);
-      throw error;
-    }
-  };
-
-  const loginWithLinkedIn = async () => {
-    const provider = new OAuthProvider('oidc.linkedin');
-    provider.addScope('openid');
-    provider.addScope('profile');
-    provider.addScope('email');
-    try {
-      const result = await signInWithPopup(auth, provider);
-      return result.user;
-    } catch (error) {
-      console.error('LinkedIn login error:', error);
-      throw error;
-    }
-  };
-
   const loginWithEmail = async (email, password) => {
     try {
       const result = await signInWithEmailAndPassword(auth, email, password);
@@ -145,8 +118,6 @@ export const AuthProvider = ({ children }) => {
     loading,
     error,
     loginWithGoogle,
-    loginWithGithub,
-    loginWithLinkedIn,
     loginWithEmail,
     signupWithEmail,
     logout,

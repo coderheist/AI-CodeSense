@@ -11,6 +11,10 @@ const router = express.Router();
 
 // Test endpoint to verify API key
 router.get('/test-key', async (req, res) => {
+  if (process.env.NODE_ENV === 'production') {
+    return res.status(404).json({ error: 'Route not found' });
+  }
+
   const apiKey = process.env.GEMINI_API_KEY;
   res.json({
     hasKey: !!apiKey,
