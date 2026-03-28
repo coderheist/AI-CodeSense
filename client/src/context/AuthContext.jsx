@@ -40,6 +40,9 @@ export const AuthProvider = ({ children }) => {
     try {
       unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
         if (firebaseUser) {
+          // Keep UI auth state aligned with Firebase even if backend DB is temporarily unavailable.
+          setUser(firebaseUser);
+
           // Register/update user in backend
           try {
             await registerUser({
@@ -48,7 +51,6 @@ export const AuthProvider = ({ children }) => {
               displayName: firebaseUser.displayName,
               photoURL: firebaseUser.photoURL,
             });
-            setUser(firebaseUser);
           } catch (error) {
             console.error('Error registering user:', error);
             // Don't block on backend errors
